@@ -1,7 +1,7 @@
 # 运行命令（在GAZEBO目录下）
-colcon build
-source install/setup.sh
-ros2 launch find_box test.launch.py
+colcon build  
+source install/setup.sh  
+ros2 launch find_box test.launch.py  
 
 # 切换目标方块
 ros2 topic pub /color std_msgs/msg/Int32 'data: 0'
