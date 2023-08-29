@@ -1,0 +1,6 @@
+# request
+std_msgs/UInt32 number  # 矿石编号
+---
+# response
+geometry_msgs/Point location    # 采矿人当前的位置
+std_msgs/Float32 total_value    # 获得的矿石总价值
