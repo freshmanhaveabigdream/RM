@@ -40,7 +40,7 @@ void identification::save(std::string path, std::vector<float> info) {
 	outFile.close();
 }
 
-void identification::identify(std::string path, int type_number) {
+void identification::identify(std::string path, int type_number) {	// type_number为文件名的第一个数字，记录视频类型
 	type_number -= 1;
 	cv::VideoCapture cap(path);	//打开视频
 	cv::Mat frame, frame_temp, armored_plate_temp, center_temp;	//定义mat变量，分别为视频的一帧、一帧视频的临时变量、检测装甲板的临时变量、检测中心的临时变量
@@ -55,7 +55,7 @@ void identification::identify(std::string path, int type_number) {
 	std::vector<cv::Vec4i> hierarchy_center;	//定义存储轮廓、层级信息的矩阵
 
 	int flag = -1;	//定义标志，-1表示本轮未检测到未击打装甲板，0表示检测到新的未击打装甲板,1表示检测到上一帧检测到的未击打装甲板
-	float last_angle = -10;	//存储上一帧检测到的装甲板中心位置和上一帧检测到的圆心的夹角，初始值为-10
+	float last_angle = -10;	//存储上一帧检测到的装甲板中心位置和上一帧检测到的圆心的夹角（弧度制，有正负），初始值为-10
 	float linear_velocity = 0;	//存储当前时刻的矩形框中心线速度
 	float angular_velocity = 0;	//存储当前时刻的矩形框角速度
 	float angle;	//存储在此刻角速度下的单位时间旋转角度
@@ -64,11 +64,11 @@ void identification::identify(std::string path, int type_number) {
 	std::vector<float> angular_velocity_record;	//记录装甲板的历史角速度
 	int frame_rate = static_cast<int>(cap.get(cv::CAP_PROP_FPS));	// 获取帧率
 	float time_per_frame = 1.0 / frame_rate;	// 获取每一帧的时长
-	int frameCounter = 0;	//记录当前是第几帧
-	int Frame_skipping = 0;	//是否跳帧的标志，因为经过验证，低曝光的视频存在每两帧相同的情况，所以跳过偶数帧解决这个问题
+	int frame_counter = 0;	//记录当前是第几帧
+	int frame_skipping = 0;	//是否跳帧的标志，因为经过验证，低曝光的视频存在每两帧相同的情况，所以跳过偶数帧解决这个问题
 	if (type_number == 2 || type_number == 3) {	//如果是低曝光视频，则跳帧，并且把处理的每帧的时长乘2
 		time_per_frame *= 2;
-		Frame_skipping = 1;
+		frame_skipping = 1;
 		frame_rate /= 2;
 	}
 	int frameWidth = static_cast<int>(cap.get(cv::CAP_PROP_FRAME_WIDTH));
@@ -77,8 +77,8 @@ void identification::identify(std::string path, int type_number) {
 	video_id << type_number + 1;
 	cv::VideoWriter outputVideo("videos/output" + video_id.str() + ".avi", cv::VideoWriter::fourcc('M', 'P', '4', '2'), frame_rate, cv::Size(frameWidth, frameHeight));
 	while (cap.read(frame)) {
-		frameCounter++;
-		if (frameCounter % 2 == 0 && Frame_skipping != 0)continue;	//跳过偶数帧
+		frame_counter++;
+		if (frame_counter % 2 == 0 && frame_skipping != 0)continue;	//跳过偶数帧
 		double time = static_cast<double>(cv::getTickCount());	//记录本轮循环起始时间
 		frame_temp = frame.clone();
 
@@ -149,15 +149,13 @@ void identification::identify(std::string path, int type_number) {
 			last_position = armored_plate;	//将此刻的装甲板中心位置标为上一刻，不输出速度
 			last_angle = atan((armored_plate.x - center.x) / (armored_plate.y - center.y));
 			std::cout << "本轮未检测到未击打装甲板" << std::endl;
-		}
-		else if (flag == 1) {	//判断条件：检测到上一帧检测到的未击打装甲板
+		}else if (flag == 1) {	//判断条件：检测到上一帧检测到的未击打装甲板
 			angular_velocity = (atan((armored_plate.x - center.x) / (armored_plate.y - center.y)) - last_angle) / time_per_frame / (number + 1);	//计算角速度（s为单位）
 			if (last_angle == -10 || abs(angular_velocity) < 2 * pi) {	//判断条件：这是第一次（用last_angle来判定）有同一装甲板的两个连续中心点记录或者本次测算的角速度小于约360度每秒
 				number = 0;
 				if (angular_velocity > 0) {
 					std::cout << "当前旋转方向为逆时针" << std::endl;
-				}
-				else {
+				}else {
 					std::cout << "当前旋转方向为顺时针" << std::endl;
 				}
 				//计算旋转的角度（一秒）
@@ -180,8 +178,7 @@ void identification::identify(std::string path, int type_number) {
 					<< armored_plate_conPloy[aim][3].x << "," << armored_plate_conPloy[aim][3].y << ")" << std::endl;
 				angular_velocity_record.push_back(angular_velocity);	//记录角速度信息
 				cv::drawContours(frame, armored_plate_conPloy, aim, cv::Scalar(255, 255, 0), 3);	//画出预测的装甲板轮廓
-			}
-			else {
+			}else {
 				flag = 0;	//在两次距离相差大于50的情况下，认定检测到了新的装甲板
 			}
 			last_angle = atan((armored_plate.x - center.x) / (armored_plate.y - center.y));
