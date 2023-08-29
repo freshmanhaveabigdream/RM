@@ -1,14 +1,14 @@
 ﻿  identify.cpp
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(66,23): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(113,13): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(114,15): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(135,13): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(138,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(143,32): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-D:\大学\RM\examine\OpenCV\OpenCV\OpenCV\identify.cpp(166,32): warning C4305: “=”: 从“double”到“float”截断
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(66,23): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(113,13): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(114,15): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(135,13): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(138,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(143,32): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+D:\大学\RM\code\RM\OpenCV\OpenCV\identify.cpp(166,32): warning C4305: “=”: 从“double”到“float”截断
+  main.cpp
   正在生成代码
-  0 of 422 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 422 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
-  OpenCV.vcxproj -> D:\大学\RM\examine\OpenCV\OpenCV\x64\Release\OpenCV.exe
+  OpenCV.vcxproj -> D:\大学\RM\code\RM\OpenCV\x64\Release\OpenCV.exe

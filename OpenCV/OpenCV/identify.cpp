@@ -62,7 +62,7 @@ void identification::identify(std::string path, int type_number) {
 	int number = 0;	//存储连续几帧没检测到矩形框
 
 	std::vector<float> angular_velocity_record;	//记录装甲板的历史角速度
-	int frame_rate = int(cap.get(cv::CAP_PROP_FPS));	// 获取帧率
+	int frame_rate = static_cast<int>(cap.get(cv::CAP_PROP_FPS));	// 获取帧率
 	float time_per_frame = 1.0 / frame_rate;	// 获取每一帧的时长
 	int frameCounter = 0;	//记录当前是第几帧
 	int Frame_skipping = 0;	//是否跳帧的标志，因为经过验证，低曝光的视频存在每两帧相同的情况，所以跳过偶数帧解决这个问题
@@ -79,7 +79,7 @@ void identification::identify(std::string path, int type_number) {
 	while (cap.read(frame)) {
 		frameCounter++;
 		if (frameCounter % 2 == 0 && Frame_skipping != 0)continue;	//跳过偶数帧
-		double time = (double)cv::getTickCount();	//记录本轮循环起始时间
+		double time = static_cast<double>(cv::getTickCount());	//记录本轮循环起始时间
 		frame_temp = frame.clone();
 
 		//图像基础处理部分
@@ -114,7 +114,7 @@ void identification::identify(std::string path, int type_number) {
 			float peri = cv::arcLength(contours[aim], true);	//计算图形轮廓周长
 			cv::approxPolyDP(contours[aim], armored_plate_conPloy[aim], 0.02 * peri, true);	//把一个连续光滑曲线折线化，对图像轮廓点进行多边形拟合
 			if (area > 1000) {	//剔除无关的点
-				if ((int)armored_plate_conPloy[aim].size() == 4 && hierarchy[aim][3] != -1 && hierarchy[hierarchy[aim][3]][3] == -1 && hierarchy[aim][2] == -1) {	//判断条件：拟合多边形为四边形，有父轮廓且父轮廓为最外层轮廓，没有子轮廓
+				if (static_cast<int>(armored_plate_conPloy[aim].size()) == 4 && hierarchy[aim][3] != -1 && hierarchy[hierarchy[aim][3]][3] == -1 && hierarchy[aim][2] == -1) {	//判断条件：拟合多边形为四边形，有父轮廓且父轮廓为最外层轮廓，没有子轮廓
 					if ((hierarchy[aim][0] > 0 && cv::contourArea(contours[hierarchy[aim][0]]) > 1000) || (hierarchy[aim][1] > 0 && cv::contourArea(contours[hierarchy[aim][1]]) > 1000)) {	//判断条件：没有面积大于1000的同级轮廓
 						continue;
 					}
@@ -137,7 +137,7 @@ void identification::identify(std::string path, int type_number) {
 			if (area < armored_plate_area / 5 && area > armored_plate_area / 10) {	//判断条件：当前轮廓所围面积在装甲板识别面积的1/10~1/5之间
 				float peri = cv::arcLength(contours_center[i], true);
 				cv::approxPolyDP(contours_center[i], center_conPloy[i], 0.09 * peri, true);
-				if ((int)center_conPloy[i].size() == 4) {	//判断条件：拟合多边形为四边形
+				if (static_cast<int>(center_conPloy[i].size()) == 4) {	//判断条件：拟合多边形为四边形
 					cv::drawContours(frame, contours_center, i, cv::Scalar(0, 255, 255), 3);
 					cv::minEnclosingCircle(center_conPloy[i], center, center_radius);
 					cv::circle(frame, center, center_radius, cv::Scalar(255, 255, 0), 9);	//画出中心圆
@@ -186,7 +186,7 @@ void identification::identify(std::string path, int type_number) {
 			}
 			last_angle = atan((armored_plate.x - center.x) / (armored_plate.y - center.y));
 		}
-		std::cout << "本轮运行时间：" << ((double)cv::getTickCount() - time) / cv::getTickFrequency() * 1000 << "ms" << std::endl;	//运算模块耗时
+		std::cout << "本轮运行时间：" << (static_cast<double>(cv::getTickCount()) - time) / cv::getTickFrequency() * 1000 << "ms" << std::endl;	//运算模块耗时
 		cv::imshow("result", frame);
 		outputVideo.write(frame);
 		cv::waitKey(1);
