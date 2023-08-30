@@ -8,6 +8,6 @@
 
 int main() {
 	identification ident;
-	ident.identify("Resources/北理珠2021正弦能量机关视频/1红方标准曝光.mp4", 1);	// 第二个参数为文件名的第一个数字
+	ident.identify("Resources/北理珠2021正弦能量机关视频/4低曝光蓝.mp4", 4);	// 第二个参数为文件名的第一个数字
 	return 0;
 }
