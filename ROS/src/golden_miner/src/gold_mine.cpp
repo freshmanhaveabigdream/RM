@@ -27,6 +27,7 @@ std::vector<mine_interfaces::msg::Ore> random_generation(int n){ //用于生成�
         temp.location.position.x = r * sin(phi) * sin(theta);
         temp.location.position.y = r * sin(phi) * cos(theta);
         temp.location.position.z = r * cos(phi);
+        temp.id.data = i;
         result.push_back(temp);
     }
     return result;
@@ -41,7 +42,7 @@ private:
     std::vector<mine_interfaces::msg::Ore> information;  //设置存储矿石信息的数组
     rclcpp::Service<mine_interfaces::srv::Mining>::SharedPtr mining_server;  //声明服务端
     rclcpp::Publisher<mine_interfaces::msg::Ore>::SharedPtr cur_ore;   //定义发布当前目标矿石的信息的发布者，用来可视化路径
-    float totalvalue;
+    float totalvalue;   // 记录当前已经被采的矿石总价值
     void timer_callback()   //定义一个时间回调函数
     {
         mine_interfaces::msg::OreArray message;  //定义一个矿石信息数组变量，用于发布
@@ -58,7 +59,7 @@ private:
         response->location.z = information[request->number.data].location.position.z;
         totalvalue += information[request->number.data].value.data;
         response->total_value.data = totalvalue;
-        information.erase(information.begin() + request->number.data);
+        information.erase(information.begin() + request->number.data);  // 删除已经被采的矿石信息
         for(unsigned int i = request->number.data; i < information.size(); i++){
             information[i].number.data--;
         }
@@ -70,14 +71,12 @@ public:
     MineNode(std::string name):Node(name){
         RCLCPP_INFO(this->get_logger(), "发布者创建成功！");
         mine = this->create_publisher<mine_interfaces::msg::OreArray>("location", 10);
-        timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&MineNode::timer_callback, this));   //创建500ms周期的一个循环，每一个周期调一次回调函数
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&MineNode::timer_callback, this));   // 创建500ms周期的一个循环，每一个周期调一次回调函数
         mining_server = this->create_service<mine_interfaces::srv::Mining>("mining", std::bind(&MineNode::mining_callback, this, std::placeholders::_1, std::placeholders::_2));    //定义服务端
         cur_ore = this->create_publisher<mine_interfaces::msg::Ore>("cur_ore", 10);
-        this->declare_parameter<std::int64_t>("ore_number", ore_number);
-        while(ore_number == -1){    // 一直循环直到launch文件中对ore_number的设置生效
-            this->get_parameter("ore_number", ore_number);
-        }
-        information = random_generation(ore_number);    //随机生成矿石信息数组变量
+        this->declare_parameter<std::int64_t>("ore_number", ore_number);    // 矿石数量使用declare_parameter设置的默认值，在launch文件中可更改
+        this->get_parameter("ore_number", ore_number);
+        information = random_generation(ore_number);    // 随机生成矿石信息数组变量
         totalvalue = 0;
     }
 };

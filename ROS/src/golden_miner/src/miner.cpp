@@ -9,6 +9,7 @@ class MinerNode: public rclcpp::Node
 private:
     rclcpp::Subscription<mine_interfaces::msg::OreArray>::SharedPtr miner;   //声明订阅者
     geometry_msgs::msg::Point location; //采矿人当前的位置
+    float totalvalue;   // 记录当前已经采到的矿石总价值
     rclcpp::Client<mine_interfaces::srv::Mining>::SharedPtr mining_client;  //声明采矿话题的客户端
     void info_callback(const mine_interfaces::msg::OreArray ore_location) //话题的回调函数，接受矿石信息，并向服务端发出采矿请求
     {
@@ -28,17 +29,19 @@ private:
             }
             auto request = std::make_shared<mine_interfaces::srv::Mining_Request>();    //定义向服务端发送的请求
             request->number.data = id;  //把将要采的矿的编号赋值给请求
+            RCLCPP_INFO(this->get_logger(), "第一个矿石的信息如下:\n类型：%s\n位置：（%f,%f,%f）\n价值：%f", ore_location.ores[0].type.data.c_str(), ore_location.ores[0].location.position.x, ore_location.ores[0].location.position.y, ore_location.ores[0].location.position.z, ore_location.ores[0].value.data);
             RCLCPP_INFO(this->get_logger(), "发出采矿请求");
             this->mining_client->async_send_request(request, std::bind(&MinerNode::mining_callback, this, std::placeholders::_1));
         }else{
-            RCLCPP_INFO(this->get_logger(), "采矿结束");
+            RCLCPP_INFO(this->get_logger(), "采矿结束，采到的矿石总价值为：%f", this->totalvalue);
         }
     }
     void mining_callback(rclcpp::Client<mine_interfaces::srv::Mining>::SharedFuture response)   //接收服务端响应后的回调函数
     {
         auto result = response.get();
         this->location = result->location;
-        RCLCPP_INFO(this->get_logger(), "成功采矿，当前矿石总价值为：%f，当前位置在（%f,%f,%f）", result->total_value.data, result->location.x, result->location.y, result->location.z);
+        this->totalvalue = result->total_value.data;
+        RCLCPP_INFO(this->get_logger(), "成功采矿，当前矿石总价值为：%f，当前位置在（%f,%f,%f）", this->totalvalue, this->location.x, this->location.y, this->location.z);
     }
 public:
     MinerNode(std::string name):Node(name)
@@ -49,6 +52,7 @@ public:
         this->location.z = 0;
         this->miner = this->create_subscription<mine_interfaces::msg::OreArray>("location", 10, std::bind(&MinerNode::info_callback, this, std::placeholders::_1));
         this->mining_client = this->create_client<mine_interfaces::srv::Mining>("mining");
+        totalvalue = 0;
     }
 };
 
