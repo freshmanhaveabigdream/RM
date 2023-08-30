@@ -42,7 +42,7 @@ values_with_noise = true_values + flag * true_values * noise
 
 fig, axs = plt.subplots(3, 3, sharex=True, sharey=False, figsize=(14, 14))  # 创建合适的画布
 plt.rcParams['font.family'] = 'Microsoft YaHei'
-plt.suptitle("直线轨迹滤波效果图", fontsize=20)
+plt.suptitle("轨迹滤波效果图", fontsize=20)
 for i in range(3):
     for j in range(3):
         # 初始化卡尔曼滤波的一些参数
@@ -56,7 +56,8 @@ for i in range(3):
         axs[i, j].plot(values_with_noise, label='values_with_noise', alpha=0.5)
         axs[i, j].plot(filtered_estimates, label='filtered_estimates')
         axs[i, j].legend()
-        axs[i, j].set_ylabel('Value')
+        axs[i, j].set_xlabel('X')
+        axs[i, j].set_ylabel('Y')
         axs[i, j].set_title('Q_cov:%.3f, R_cov:%.3f' % (Q_cov, R_cov))
 
 plt.savefig('直线轨迹滤波效果图')
